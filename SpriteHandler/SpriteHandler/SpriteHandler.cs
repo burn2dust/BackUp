@@ -10,32 +10,22 @@ namespace Graphics
     {
         private int xpos, ypos;
         private int xlen, ylen;
-        private int frameCount;
+        private int frameCount = 0;
         public bool isOldFrame = false;
         public bool isNewFrame = true;
         public bool cancel = false;
 
         private string loc;
 
-        public Sprite()
-        {
-            xpos = 0;
-            xpos = 0;
-            xlen = 64;
-            ylen = 64;
-            loc = "";
-            frameCount = 0;
-
-        }
+        public Sprite() : this("", 0, 0, 64, 64) {}
 
         public Sprite(string str, int x, int y, int width, int height)
         {
+            loc = str;
             xpos = x;
             ypos = y;
             xlen = width;
             ylen = height;
-            loc = str;
-            frameCount = 0;
         }
 
         public int count
@@ -65,10 +55,30 @@ namespace Graphics
         //TODO: make an event handler for sprites or at least learn some the delegates.
         const int FrameMax = 60;
         int frameCount = 0;
+        static Sprite[][] sprites = new Sprite[10][];
 
-        event UpdateHandler UpdateSprite;
+        event UpdateHandler update;
+        public static Dictionary<int, Sprite> group = new Dictionary<int, Sprite>();
 
-        public Sprite UpdateSpite(Sprite temp)
+        public SpriteHandler() : this(sprites[0], null, 0) {}
+
+        public SpriteHandler(Sprite[] obj, Sprite s, int loc)
+        {
+            obj[loc] = s;
+        }
+
+        public static void __init__()
+        {
+            Sprite player = new Sprite();
+            Sprite enemy = new Sprite();
+            Sprite boss = new Sprite();
+            group.Add(1, player);
+            group.Add(2, enemy);
+            group.Add(3, boss);
+            
+        }
+
+        public Sprite UpdateSprite(Sprite temp)
         {
 
             //event updateframe
@@ -89,11 +99,28 @@ namespace Graphics
             return temp;
         }
 
+        public void run(Sprite sprite)
+        {
+            bool end = false;
+            if (!end)
+            {
+                for (int i = 0; i < FrameMax; i++)
+                {
+                    UpdateSprite(sprite);
+                }
+                run(sprite);
+            }
+        }
+
         static void main(string[] args)
         {
-            //try the hook up
             SpriteHandler SH = new SpriteHandler();
 
+            Sprite littleBoy = new Sprite();
+
+            UpdateHandler UH = new UpdateHandler(littleBoy.update);
+            SH.run(littleBoy);
+            Console.WriteLine(SH.frameCount);
         }
     }
 }
